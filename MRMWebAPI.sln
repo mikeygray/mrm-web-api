@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MRMWebAPI", "MRMWebAPI\MRMWebAPI.csproj", "{69C50E72-710B-4CFB-A71F-E28E97589CCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MRMWebAPI.Tests", "MRMWebAPI.Tests\MRMWebAPI.Tests.csproj", "{9B9FF392-5EB2-4B78-8FCA-88A6F25D2299}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{69C50E72-710B-4CFB-A71F-E28E97589CCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69C50E72-710B-4CFB-A71F-E28E97589CCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69C50E72-710B-4CFB-A71F-E28E97589CCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69C50E72-710B-4CFB-A71F-E28E97589CCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B9FF392-5EB2-4B78-8FCA-88A6F25D2299}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B9FF392-5EB2-4B78-8FCA-88A6F25D2299}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B9FF392-5EB2-4B78-8FCA-88A6F25D2299}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B9FF392-5EB2-4B78-8FCA-88A6F25D2299}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B0C5E6A5-FEF2-4AED-80DC-728BECB2422A}
+	EndGlobalSection
+EndGlobal
