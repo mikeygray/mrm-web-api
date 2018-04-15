@@ -38,6 +38,8 @@ namespace MRMWebAPI.Migrations
                 foreach (Product product in productsArray)
                 {
                     product.Id = count++;
+                    //Do I even needs this? The DB assigns its own Id anyway?
+
                     context.Products.AddOrUpdate(x => x.Id, product);
                     //Debug.WriteLine("{0} | {1} | {2} | {3}", product.Id, product.Name, product.Category, product.Description);
                 }
