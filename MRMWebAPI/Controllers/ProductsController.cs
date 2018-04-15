@@ -54,7 +54,94 @@ namespace MRMWebAPI.Controllers
 
             return NotFound();
         }
-        
+
+        /// <summary>
+        /// Updates product data at a specific id. (e.g. PUT api/Products/5)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="product"></param>
+        /// <returns></returns>
+        [ResponseType(typeof(void))]
+        public async Task<IHttpActionResult> Put(int id, Product product)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (id != product.Id)
+                return BadRequest();
+
+            if (!ProductExists(id))
+                return NotFound();
+
+            _repository.Entry(product).State = EntityState.Modified;
+
+            // Product oldProduct = _repository.Products.Single(p => p.Id == id)...?
+            
+            try
+            {
+                await _repository.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        /// <summary>
+        /// Adds a new product. (e.g. POST api/Products)
+        /// </summary>
+        /// <param name="product"></param>
+        /// <returns></returns>
+        [ResponseType(typeof(Product))]
+        public async Task<IHttpActionResult> Post(Product product)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                _repository.Products.Add(product);
+                await _repository.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+            return CreatedAtRoute("DefaultApi", new { id = product.Id }, product);
+        }
+
+        /// <summary>
+        /// Removes the product at a specific id. (e.g. DELETE api/Products/5)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [ResponseType(typeof(Product))]
+        public async Task<IHttpActionResult> Delete(int id)
+        {
+            Product product = _repository.Products.Single(p => p.Id == id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                _repository.Products.Remove(product);
+                await _repository.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+            return Ok(product);
+        }
+
         /// <summary>
         /// </summary>
         /// <param name="disposing"></param>

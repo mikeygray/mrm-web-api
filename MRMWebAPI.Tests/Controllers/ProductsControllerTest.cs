@@ -1,119 +1,27 @@
 ﻿using System.Web.Http;
 using System.Web.Http.Results;
-using System.Data.Entity;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Data.Entity.Infrastructure;
 using System.Net;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MRMWebAPI.Models;
 using MRMWebAPI.Controllers;
-using MRMWebAPI.Tests.TestDbAsync;
+using static MRMWebAPI.Tests.Helpers.MockDbListHelper;
 
 namespace MRMWebAPI.Tests.Controllers
 {
     [TestClass]
     public class ProductsControllerTest
     {
-        private List<Product> MockFullList
-        {
-            get
-            {
-                return new List<Product> {
-                    new Product {
-                        Id = 3,
-                        Name = "Cheese",
-                        Description = "Smelly",
-                        Category = "Dairy"
-                    },
-                    new Product {
-                        Id = 7,
-                        Name = "Biscuit",
-                        Description = "Crunchy",
-                        Category = "Snack"
-                    },
-                    new Product {
-                        Id = 17,
-                        Name = "Crisps",
-                        Description = "Also Crunchy",
-                        Category = "Snack"
-                    },
-                    new Product {
-                        Id = 32,
-                        Name = "Milk",
-                        Description = "Pasturised",
-                        Category = "Dairy"
-                    }
-                };
-            }
-        }
-
-        private List<Product> MockDairyList
-        {
-            get
-            {
-                return new List<Product> {
-                    new Product {
-                        Id = 3,
-                        Name = "Cheese",
-                        Description = "Smelly",
-                        Category = "Dairy"
-                    },
-                    new Product {
-                        Id = 32,
-                        Name = "Milk",
-                        Description = "Pasturised",
-                        Category = "Dairy"
-                    }
-                };
-            }
-        }
-
-        private static Mock<DbSet<T>> GetQueryableMockDbSet<T>(List<T> sourceList) where T : class
-        {
-            var queryable = sourceList.AsQueryable();
-
-            var dbSet = new Mock<DbSet<T>>();
-            dbSet.As<IQueryable<T>>().Setup(m => m.Provider).Returns(queryable.Provider);
-            dbSet.As<IQueryable<T>>().Setup(m => m.Expression).Returns(queryable.Expression);
-            dbSet.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(queryable.ElementType);
-            dbSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(() => queryable.GetEnumerator());
-            dbSet.Setup(d => d.Add(It.IsAny<T>())).Callback<T>((s) => sourceList.Add(s));
-
-            return dbSet;
-        }
-
-        private static Mock<DbSet<T>> GetAsyncMockDbSet<T>(List<T> sourceList) where T : class
-        {
-            var queryable = sourceList.AsQueryable();
-
-            var dbSet = new Mock<DbSet<T>>();
-            dbSet.As<IDbAsyncEnumerable<T>>()
-                .Setup(m => m.GetAsyncEnumerator())
-                .Returns(new TestDbAsyncEnumerator<T>(queryable.GetEnumerator()));
-            dbSet.As<IQueryable<T>>()
-                .Setup(m => m.Provider)
-                .Returns(new TestDbAsyncQueryProvider<T>(queryable.Provider));
-            
-            dbSet.As<IQueryable<T>>().Setup(m => m.Expression).Returns(queryable.Expression);
-            dbSet.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(queryable.ElementType);
-            dbSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(() => queryable.GetEnumerator());
-            dbSet.Setup(d => d.Add(It.IsAny<T>())).Callback<T>((s) => sourceList.Add(s));
-            dbSet.Setup(d => d.Remove(It.IsAny<T>())).Callback<T>((s) => sourceList.Remove(s));
-            
-            return dbSet;
-        }
-
-
         [TestMethod]
         public void GetReturnsAllProducts()
         {
             // Arrange
             var mockRepository = new Mock<ProductServiceContext>();
             mockRepository.Setup(x => x.Products)
-                .Returns(GetQueryableMockDbSet(MockFullList).Object);
+                .Returns(GetQueryableMockDbSet(MockProductListFull).Object);
             var controller = new ProductsController(mockRepository.Object);
 
             // Act
@@ -123,7 +31,7 @@ namespace MRMWebAPI.Tests.Controllers
             // Assert
             Assert.IsNotNull(contentResult);
             Assert.IsNotNull(contentResult.Content);
-            CollectionAssert.AreEqual(MockFullList, contentResult.Content);
+            CollectionAssert.AreEqual(MockProductListFull, contentResult.Content);
         }
 
         [TestMethod]
@@ -132,7 +40,7 @@ namespace MRMWebAPI.Tests.Controllers
             // Arrange
             var mockRepository = new Mock<ProductServiceContext>();
             mockRepository.Setup(x => x.Products)
-                .Returns(GetAsyncMockDbSet(MockFullList).Object);
+                .Returns(GetAsyncMockDbSet(MockProductListFull).Object);
             var controller = new ProductsController(mockRepository.Object);
 
             // Act
@@ -142,8 +50,75 @@ namespace MRMWebAPI.Tests.Controllers
             // Assert
             Assert.IsNotNull(contentResult);
             Assert.IsNotNull(contentResult.Content);
-            CollectionAssert.AreEqual(MockDairyList, contentResult.Content);
+            CollectionAssert.AreEqual(MockProductListDairy, contentResult.Content);
         }
-        
+
+        [TestMethod]
+        public async Task PostSetsHeaderAndReturnsProduct()
+        {
+            // Arrange
+            var mockRepository = new Mock<ProductServiceContext>();
+            mockRepository.Setup(x => x.Products)
+                .Returns(GetAsyncMockDbSet(MockProductListFull).Object);
+            var controller = new ProductsController(mockRepository.Object);
+
+            // Act
+            var actionResult = await controller.Post(new Product { Id = 99, Name = "Crackers" });
+            var createdResult = actionResult as CreatedAtRouteNegotiatedContentResult<Product>;
+
+            // Assert
+            Assert.IsNotNull(createdResult);
+            Assert.AreEqual("DefaultApi", createdResult.RouteName);
+            Assert.AreEqual(99, createdResult.RouteValues["id"]);
+            Assert.AreEqual("Crackers", createdResult.Content.Name);
+        }
+
+        [TestMethod, Ignore]
+        public async Task PutReturnsContentResult()
+        {
+            // Arrange
+            var mockRepository = new Mock<ProductServiceContext>();
+            mockRepository.Setup(x => x.Products)
+                .Returns(GetAsyncMockDbSet(MockProductListFull).Object);
+            var controller = new ProductsController(mockRepository.Object);
+            
+            /*
+             * TODO: I can not get this to work for love nor money
+             * 
+            // Act
+            //var mockController = new Mock<ProductsController>(mockRepository.Object);
+            //mockController.Setup(c => c.Put()).Returns(p)...?
+ 
+            var actionResult = await controller.Put(3, new Product { Id = 3, Name = "Super Smelly Cheese" });
+            var contentResult = actionResult as NegotiatedContentResult<Product>;
+
+            // Assert
+            Assert.IsNotNull(contentResult);
+            Assert.AreEqual(HttpStatusCode.Accepted, contentResult.StatusCode);
+            Assert.IsNotNull(contentResult.Content);
+            Assert.AreEqual(3, contentResult.Content.Id);
+            Assert.AreEqual("Super Smelly Cheese", contentResult.Content.Name);
+            */   
+        }
+
+        [TestMethod]
+        public async Task DeleteReturnsOkAndRemovesProduct()
+        {
+            // Arrange
+            var mockDbSet = GetAsyncMockDbSet(MockProductListFull);
+          
+            var mockRepository = new Mock<ProductServiceContext>();
+            mockRepository.Setup(x => x.Products)
+                .Returns(mockDbSet.Object);
+
+            var controller = new ProductsController(mockRepository.Object);
+
+            // Act
+            var actionResult = await controller.Delete(7);
+
+            // Assert
+            Assert.IsInstanceOfType(actionResult, typeof(OkNegotiatedContentResult<Product>));
+            Assert.AreEqual(3, mockRepository.Object.Products.Count());
+        }
     }
 }

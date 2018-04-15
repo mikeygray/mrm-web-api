@@ -1,6 +1,5 @@
 ﻿using System.Web.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MRMWebAPI;
 using MRMWebAPI.Controllers;
 
 namespace MRMWebAPI.Tests.Controllers
@@ -19,7 +18,7 @@ namespace MRMWebAPI.Tests.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual("Home Page", result.ViewBag.Title);
+            Assert.AreEqual("MRM Brand .Net Exercise - Mikey Gray", result.ViewBag.Title);
         }
     }
 }
