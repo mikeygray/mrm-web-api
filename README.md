@@ -10,7 +10,7 @@ Created for the MRM Brand Technical Exercise, avaliable [here](https://github.co
 
 Issues
 ------
-###aka Things I'd fix with more time###
+### aka Things I'd fix with more time ###
  
  * In hindsight I should of split the _category_ field out of the `Product` model in to it's own entity. Would make for a better data structure at the back-end.
  * The unit test suite isn't very robust. Should of made a greater number of more granular tests rather than "does this method work" tests.
